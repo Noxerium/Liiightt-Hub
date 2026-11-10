@@ -79,25 +79,36 @@ function UI.Create()
         ZIndex = 5
     }, mainFrame)
 
-    local titleLabel = create("TextLabel", {
-        Name = "TitleLabel",
-        Size = UDim2.new(1, -120, 0, 35),
+    local logoLime = create("TextLabel", {
+        Name = "LogoLime",
+        Size = UDim2.fromOffset(70, 35),
         Position = UDim2.fromOffset(15, 5),
         BackgroundTransparency = 1,
-        Text = "LiiighttHub",
+        Text = "Liiightt",
+        TextColor3 = COLORS.Lime,
+        Font = Enum.Font.GothamBlack,
+        TextSize = 20,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 6
+    }, header)
+
+    local logoHub = create("TextLabel", {
+        Name = "LogoHub",
+        Size = UDim2.fromOffset(45, 35),
+        Position = UDim2.fromOffset(88, 5),
+        BackgroundTransparency = 1,
+        Text = "Hub",
         TextColor3 = COLORS.White,
         Font = Enum.Font.GothamBlack,
         TextSize = 20,
         TextXAlignment = Enum.TextXAlignment.Left,
-        RichText = true,
         ZIndex = 6
     }, header)
-    titleLabel.Text = '<font color="rgb(0,255,120)">Liiightt</font>Hub'
 
     local author = create("TextLabel", {
         Name = "Author",
         Size = UDim2.fromOffset(100, 25),
-        Position = UDim2.fromOffset(165, 8),
+        Position = UDim2.fromOffset(135, 8),
         BackgroundTransparency = 1,
         Text = "by @Noxer",
         TextColor3 = COLORS.Gray,
@@ -256,4 +267,4 @@ function UI.Create()
     }
 end
 
-return UI
+UI.Create()
