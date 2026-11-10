@@ -63,7 +63,8 @@ function UI.Create()
         AnchorPoint = Vector2.new(0.5, 0.5),
         BackgroundColor3 = COLORS.Background,
         BorderSizePixel = 0,
-        Active = true
+        Active = true,
+        ClipsDescendants = false
     }, screenGui)
 
     round(mainFrame, 12)
@@ -76,60 +77,65 @@ function UI.Create()
     local header = create("Frame", {
         Name = "Header",
         Size = UDim2.new(1, 0, 0, 45),
+        Position = UDim2.fromOffset(0, 0),
         BackgroundTransparency = 1,
-        BorderSizePixel = 0
+        BorderSizePixel = 0,
+        ZIndex = 2
     }, mainFrame)
 
     local logo = create("TextLabel", {
         Name = "Logo",
-        Size = UDim2.fromOffset(175, 35),
+        Size = UDim2.fromOffset(105, 35),
         Position = UDim2.fromOffset(15, 5),
         BackgroundTransparency = 1,
         Text = "Liiightt",
         TextColor3 = COLORS.Lime,
         Font = Enum.Font.GothamBlack,
-        TextSize = 21,
-        TextXAlignment = Enum.TextXAlignment.Left
+        TextSize = 20,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 3
     }, header)
 
     local hub = create("TextLabel", {
         Name = "Hub",
-        Size = UDim2.fromOffset(55, 35),
-        Position = UDim2.fromOffset(105, 5),
+        Size = UDim2.fromOffset(45, 35),
+        Position = UDim2.fromOffset(112, 5),
         BackgroundTransparency = 1,
         Text = "Hub",
         TextColor3 = COLORS.White,
         Font = Enum.Font.GothamBlack,
-        TextSize = 21,
-        TextXAlignment = Enum.TextXAlignment.Left
+        TextSize = 20,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 3
     }, header)
 
     local author = create("TextLabel", {
         Name = "Author",
         Size = UDim2.fromOffset(100, 25),
-        Position = UDim2.new(1, -108, 0, 10),
+        Position = UDim2.fromOffset(160, 10),
         BackgroundTransparency = 1,
         Text = "by @Noxer",
         TextColor3 = COLORS.Gray,
+        TextTransparency = 0.55,
         Font = Enum.Font.SourceSans,
         TextSize = 14,
-        TextXAlignment = Enum.TextXAlignment.Right
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 3
     }, header)
 
-    local tabs = create("Frame", {
-        Name = "Tabs",
-        Size = UDim2.new(1, -20, 0, 32),
-        Position = UDim2.fromOffset(10, 45),
-        BackgroundColor3 = COLORS.Surface,
-        BorderSizePixel = 0
+    local separator = create("Frame", {
+        Name = "Separator",
+        Size = UDim2.new(1, 0, 0, 2),
+        Position = UDim2.fromOffset(0, 45),
+        BackgroundColor3 = COLORS.Black,
+        BorderSizePixel = 0,
+        ZIndex = 2
     }, mainFrame)
-
-    round(tabs, 8)
 
     local function createTab(name, position)
         local button = create("TextButton", {
             Name = name,
-            Size = UDim2.new(0.5, 0, 1, 0),
+            Size = UDim2.fromOffset(165, 32),
             Position = position,
             BackgroundColor3 = COLORS.Surface,
             BorderSizePixel = 0,
@@ -137,22 +143,33 @@ function UI.Create()
             TextColor3 = COLORS.Gray,
             Font = Enum.Font.SourceSans,
             TextSize = 16,
-            AutoButtonColor = false
-        }, tabs)
+            AutoButtonColor = false,
+            ZIndex = 1
+        }, mainFrame)
 
         round(button, 8)
+        stroke(button, COLORS.Black, 2)
+
+        local bottomCover = create("Frame", {
+            Name = "BottomCover",
+            Size = UDim2.new(1, 0, 0, 10),
+            Position = UDim2.new(0, 0, 1, -10),
+            BackgroundColor3 = COLORS.Surface,
+            BorderSizePixel = 0,
+            ZIndex = 2
+        }, button)
 
         return button
     end
 
     local mainTab = createTab(
         "Основное",
-        UDim2.fromScale(0, 0)
+        UDim2.fromOffset(10, 29)
     )
 
     local settingsTab = createTab(
         "Настройки",
-        UDim2.fromScale(0.5, 0)
+        UDim2.fromOffset(185, 29)
     )
 
     local pages = create("Folder", {
@@ -161,18 +178,20 @@ function UI.Create()
 
     local mainPage = create("Frame", {
         Name = "MainPage",
-        Size = UDim2.new(1, -20, 1, -92),
-        Position = UDim2.fromOffset(10, 82),
+        Size = UDim2.new(1, -20, 1, -110),
+        Position = UDim2.fromOffset(10, 65),
         BackgroundTransparency = 1,
-        Visible = true
+        Visible = true,
+        ZIndex = 1
     }, pages)
 
     local settingsPage = create("Frame", {
         Name = "SettingsPage",
-        Size = UDim2.new(1, -20, 1, -92),
-        Position = UDim2.fromOffset(10, 82),
+        Size = UDim2.new(1, -20, 1, -110),
+        Position = UDim2.fromOffset(10, 65),
         BackgroundTransparency = 1,
-        Visible = false
+        Visible = false,
+        ZIndex = 1
     }, pages)
 
     local function switchTab(selected)
@@ -181,8 +200,16 @@ function UI.Create()
         mainPage.Visible = isMain
         settingsPage.Visible = not isMain
 
+        mainTab.ZIndex = isMain and 3 or 1
+        settingsTab.ZIndex = isMain and 1 or 3
+
+        separator.ZIndex = 2
+
         mainTab.TextColor3 = isMain and COLORS.Lime or COLORS.Gray
         settingsTab.TextColor3 = isMain and COLORS.Gray or COLORS.Lime
+
+        mainTab.BackgroundColor3 = COLORS.Surface
+        settingsTab.BackgroundColor3 = COLORS.Surface
     end
 
     mainTab.MouseButton1Click:Connect(function()
@@ -243,6 +270,9 @@ function UI.Create()
         Header = header,
         MainPage = mainPage,
         SettingsPage = settingsPage,
+        MainTab = mainTab,
+        SettingsTab = settingsTab,
+        Separator = separator,
         UIScale = uiScale,
         Colors = COLORS
     }
