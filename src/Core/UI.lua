@@ -312,18 +312,36 @@ function UI.Create()
             ZIndex = 3
         }, headerBtn)
 
-        local arrow = create("TextLabel", {
+        local arrowHolder = create("Frame", {
             Name = "Arrow",
-            Size = UDim2.fromOffset(20, 32),
-            Position = UDim2.new(1, -26, 0, 0),
+            Size = UDim2.fromOffset(16, 16),
+            Position = UDim2.new(1, -24, 0.5, -8),
             BackgroundTransparency = 1,
-            Text = "v",
-            TextColor3 = COLORS.Gray,
-            Font = Enum.Font.GothamBlack,
-            TextSize = 14,
             Rotation = isOpen and 180 or 0,
             ZIndex = 3
         }, headerBtn)
+
+        local leftLine = create("Frame", {
+            Name = "LeftLine",
+            Size = UDim2.fromOffset(7, 2),
+            Position = UDim2.fromOffset(2, 7),
+            BackgroundColor3 = COLORS.Gray,
+            BorderSizePixel = 0,
+            Rotation = 45,
+            ZIndex = 3
+        }, arrowHolder)
+        round(leftLine, 1)
+
+        local rightLine = create("Frame", {
+            Name = "RightLine",
+            Size = UDim2.fromOffset(7, 2),
+            Position = UDim2.fromOffset(6, 7),
+            BackgroundColor3 = COLORS.Gray,
+            BorderSizePixel = 0,
+            Rotation = -45,
+            ZIndex = 3
+        }, arrowHolder)
+        round(rightLine, 1)
 
         local container = create("Frame", {
             Name = "Container",
@@ -345,11 +363,11 @@ function UI.Create()
 
             if instant then
                 section.Size = UDim2.new(1, 0, 0, targetHeight)
-                arrow.Rotation = targetRotation
+                arrowHolder.Rotation = targetRotation
             else
                 local info = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
                 TweenService:Create(section, info, {Size = UDim2.new(1, 0, 0, targetHeight)}):Play()
-                TweenService:Create(arrow, info, {Rotation = targetRotation}):Play()
+                TweenService:Create(arrowHolder, info, {Rotation = targetRotation}):Play()
             end
         end
 
@@ -369,9 +387,9 @@ function UI.Create()
         return container
     end
 
-    local movementSection = createSection(leftColumn, "Movement", true)
-    local visualSection = createSection(rightColumn, "Visual", false)
-    local miscSection = createSection(rightColumn, "Misc", false)
+    local movementSection = createSection(leftColumn, "Движение", true)
+    local visualSection = createSection(rightColumn, "Визуал", false)
+    local miscSection = createSection(rightColumn, "Разное", false)
 
     switchTab("Основное")
 
