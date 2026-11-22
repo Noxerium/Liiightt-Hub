@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 local UI = {}
 
@@ -251,6 +252,127 @@ function UI.Create()
         end
     end)
 
+    local function createColumn(parent, position)
+        local column = create("ScrollingFrame", {
+            Name = "Column",
+            Size = UDim2.new(0.5, -5, 1, 0),
+            Position = position,
+            BackgroundTransparency = 1,
+            BorderSizePixel = 0,
+            ScrollBarThickness = 0,
+            CanvasSize = UDim2.new(0, 0, 0, 0),
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            ClipsDescendants = false
+        }, parent)
+
+        create("UIListLayout", {
+            Padding = UDim.new(0, 8),
+            SortOrder = Enum.SortOrder.LayoutOrder
+        }, column)
+
+        return column
+    end
+
+    local leftColumn = createColumn(mainPage, UDim2.fromOffset(0, 0))
+    local rightColumn = createColumn(mainPage, UDim2.new(0.5, 5, 0, 0))
+
+    local function createSection(parent, title, defaultOpen)
+        local isOpen = defaultOpen or false
+
+        local section = create("Frame", {
+            Name = title .. "Section",
+            Size = UDim2.new(1, 0, 0, 32),
+            BackgroundColor3 = COLORS.Surface,
+            BorderSizePixel = 0,
+            ClipsDescendants = true
+        }, parent)
+
+        round(section, 8)
+        stroke(section, COLORS.Black, 2)
+
+        local headerBtn = create("TextButton", {
+            Name = "Header",
+            Size = UDim2.new(1, 0, 0, 32),
+            BackgroundTransparency = 1,
+            Text = "",
+            AutoButtonColor = false,
+            ZIndex = 2
+        }, section)
+
+        local titleLabel = create("TextLabel", {
+            Name = "Title",
+            Size = UDim2.new(1, -35, 1, 0),
+            Position = UDim2.fromOffset(10, 0),
+            BackgroundTransparency = 1,
+            Text = title,
+            TextColor3 = COLORS.White,
+            Font = Enum.Font.GothamBlack,
+            TextSize = 14,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            ZIndex = 3
+        }, headerBtn)
+
+        local arrow = create("TextLabel", {
+            Name = "Arrow",
+            Size = UDim2.fromOffset(20, 32),
+            Position = UDim2.new(1, -26, 0, 0),
+            BackgroundTransparency = 1,
+            Text = "v",
+            TextColor3 = COLORS.Gray,
+            Font = Enum.Font.GothamBlack,
+            TextSize = 14,
+            Rotation = isOpen and 180 or 0,
+            ZIndex = 3
+        }, headerBtn)
+
+        local container = create("Frame", {
+            Name = "Container",
+            Size = UDim2.new(1, -16, 0, 0),
+            Position = UDim2.fromOffset(8, 36),
+            BackgroundTransparency = 1,
+            AutomaticSize = Enum.AutomaticSize.Y
+        }, section)
+
+        local layout = create("UIListLayout", {
+            Padding = UDim.new(0, 6),
+            SortOrder = Enum.SortOrder.LayoutOrder
+        }, container)
+
+        local function updateHeight(instant)
+            local contentHeight = layout.AbsoluteContentSize.Y
+            local targetHeight = isOpen and (42 + contentHeight) or 32
+            local targetRotation = isOpen and 180 or 0
+
+            if instant then
+                section.Size = UDim2.new(1, 0, 0, targetHeight)
+                arrow.Rotation = targetRotation
+            else
+                local info = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                TweenService:Create(section, info, {Size = UDim2.new(1, 0, 0, targetHeight)}):Play()
+                TweenService:Create(arrow, info, {Rotation = targetRotation}):Play()
+            end
+        end
+
+        layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            if isOpen then
+                updateHeight(true)
+            end
+        end)
+
+        headerBtn.MouseButton1Click:Connect(function()
+            isOpen = not isOpen
+            updateHeight(false)
+        end)
+
+        updateHeight(true)
+
+        return container
+    end
+
+    local movementSection = createSection(leftColumn, "Movement", true)
+    local visualSection = createSection(rightColumn, "Visual", false)
+    local miscSection = createSection(rightColumn, "Misc", false)
+
     switchTab("Основное")
 
     return {
@@ -263,7 +385,13 @@ function UI.Create()
         SettingsTab = settingsTab,
         Separator = separator,
         UIScale = uiScale,
-        Colors = COLORS
+        Colors = COLORS,
+        CreateSection = createSection,
+        Sections = {
+            Movement = movementSection,
+            Visual = visualSection,
+            Misc = miscSection
+        }
     }
 end
 
