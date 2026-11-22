@@ -125,7 +125,7 @@ function UI.Create()
         Position = UDim2.fromOffset(0, 77),
         BackgroundColor3 = COLORS.Black,
         BorderSizePixel = 0,
-        ZIndex = 4
+        ZIndex = 1
     }, mainFrame)
 
     local function createTab(name, position)
@@ -150,11 +150,11 @@ function UI.Create()
 
         local bottomCover = create("Frame", {
             Name = "BottomCover",
-            Size = UDim2.new(1, 0, 0, 10),
+            Size = UDim2.new(1, 0, 0, 12),
             Position = UDim2.new(0, 0, 1, -10),
-            BackgroundColor3 = COLORS.Surface,
+            BackgroundColor3 = COLORS.Background,
             BorderSizePixel = 0,
-            ZIndex = 3
+            ZIndex = 2
         }, button)
 
         return button, bottomCover, outline
@@ -191,17 +191,17 @@ function UI.Create()
         mainPage.Visible = isMain
         settingsPage.Visible = not isMain
 
-        mainTab.ZIndex = isMain and 4 or 2
-        settingsTab.ZIndex = isMain and 2 or 4
+        mainTab.ZIndex = isMain and 3 or 2
+        settingsTab.ZIndex = isMain and 2 or 3
+
+        mainCover.ZIndex = isMain and 3 or 2
+        settingsCover.ZIndex = isMain and 2 or 3
 
         mainTab.TextColor3 = isMain and COLORS.Lime or COLORS.Gray
         settingsTab.TextColor3 = isMain and COLORS.Gray or COLORS.Lime
 
-        mainTab.BackgroundColor3 = isMain and COLORS.Surface or COLORS.SurfaceInactive
-        settingsTab.BackgroundColor3 = isMain and COLORS.SurfaceInactive or COLORS.Surface
-
-        mainCover.BackgroundColor3 = isMain and COLORS.Surface or COLORS.SurfaceInactive
-        settingsCover.BackgroundColor3 = isMain and COLORS.SurfaceInactive or COLORS.Surface
+        mainTab.BackgroundColor3 = isMain and COLORS.Background or COLORS.SurfaceInactive
+        settingsTab.BackgroundColor3 = isMain and COLORS.SurfaceInactive or COLORS.Background
 
         mainCover.Visible = isMain
         settingsCover.Visible = not isMain
