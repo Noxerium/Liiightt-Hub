@@ -53,6 +53,9 @@ function UI.Create()
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     }, playerGui)
 
+    local isTouch = UserInputService.TouchEnabled
+    local baseScale = isTouch and 0.72 or 1
+
     local mainFrame = create("Frame", {
         Name = "MainFrame",
         Size = UDim2.fromOffset(360, 540),
@@ -61,14 +64,15 @@ function UI.Create()
         BackgroundColor3 = COLORS.Background,
         BorderSizePixel = 0,
         Active = true,
-        ClipsDescendants = false
+        Visible = false,
+        ClipsDescendants = true
     }, screenGui)
 
     round(mainFrame, 12)
-    stroke(mainFrame, COLORS.Black, 2)
+    local mainStroke = stroke(mainFrame, COLORS.Black, 2)
 
     local uiScale = create("UIScale", {
-        Scale = UserInputService.TouchEnabled and 0.72 or 1
+        Scale = baseScale
     }, mainFrame)
 
     local header = create("Frame", {
@@ -80,7 +84,7 @@ function UI.Create()
         ZIndex = 5
     }, mainFrame)
 
-    local logoLime = create("TextLabel", {
+    create("TextLabel", {
         Name = "LogoLime",
         Size = UDim2.fromOffset(70, 35),
         Position = UDim2.fromOffset(15, 5),
@@ -93,7 +97,7 @@ function UI.Create()
         ZIndex = 6
     }, header)
 
-    local logoHub = create("TextLabel", {
+    create("TextLabel", {
         Name = "LogoHub",
         Size = UDim2.fromOffset(45, 35),
         Position = UDim2.fromOffset(88, 5),
@@ -106,7 +110,7 @@ function UI.Create()
         ZIndex = 6
     }, header)
 
-    local author = create("TextLabel", {
+    create("TextLabel", {
         Name = "Author",
         Size = UDim2.fromOffset(100, 25),
         Position = UDim2.fromOffset(135, 8),
@@ -161,8 +165,8 @@ function UI.Create()
         return button, bottomCover, outline
     end
 
-    local mainTab, mainCover, mainStroke = createTab("Основное", UDim2.fromOffset(10, 45))
-    local settingsTab, settingsCover, settingsStroke = createTab("Настройки", UDim2.fromOffset(185, 45))
+    local mainTab, mainCover = createTab("Основное", UDim2.fromOffset(10, 45))
+    local settingsTab, settingsCover = createTab("Настройки", UDim2.fromOffset(185, 45))
 
     local pages = create("Folder", {
         Name = "Pages"
@@ -299,7 +303,7 @@ function UI.Create()
             ZIndex = 2
         }, section)
 
-        local titleLabel = create("TextLabel", {
+        create("TextLabel", {
             Name = "Title",
             Size = UDim2.new(1, -35, 1, 0),
             Position = UDim2.fromOffset(10, 0),
@@ -393,6 +397,298 @@ function UI.Create()
 
     switchTab("Основное")
 
+    local menuOpen = false
+    local animating = false
+
+    local function toggleMenu(state)
+        if animating then
+            return
+        end
+        if state == nil then
+            state = not menuOpen
+        end
+        if state == menuOpen then
+            return
+        end
+
+        animating = true
+        menuOpen = state
+
+        if menuOpen then
+            mainFrame.Size = UDim2.fromOffset(0, 4)
+            mainFrame.Visible = true
+            mainStroke.Thickness = 2
+
+            local expandX = TweenService:Create(
+                mainFrame,
+                TweenInfo.new(0.16, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                {Size = UDim2.fromOffset(360, 4)}
+            )
+            expandX:Play()
+            expandX.Completed:Wait()
+
+            local expandY = TweenService:Create(
+                mainFrame,
+                TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+                {Size = UDim2.fromOffset(360, 540)}
+            )
+            expandY:Play()
+            expandY.Completed:Wait()
+            animating = false
+        else
+            local collapseY = TweenService:Create(
+                mainFrame,
+                TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+                {Size = UDim2.fromOffset(360, 4)}
+            )
+            collapseY:Play()
+            collapseY.Completed:Wait()
+
+            local collapseX = TweenService:Create(
+                mainFrame,
+                TweenInfo.new(0.14, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+                {Size = UDim2.fromOffset(0, 4)}
+            )
+            collapseX:Play()
+            collapseX.Completed:Wait()
+
+            mainFrame.Visible = false
+            animating = false
+        end
+    end
+
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then
+            return
+        end
+        if UserInputService:GetFocusedTextBox() then
+            return
+        end
+        if input.KeyCode == Enum.KeyCode.RightShift then
+            toggleMenu()
+        end
+    end)
+
+    if isTouch then
+        local mobileBtn = create("TextButton", {
+            Name = "MobileToggle",
+            Size = UDim2.fromOffset(48, 48),
+            Position = UDim2.new(0, 20, 0.5, -24),
+            BackgroundColor3 = COLORS.Surface,
+            BorderSizePixel = 0,
+            Text = "",
+            AutoButtonColor = false,
+            ClipsDescendants = true,
+            ZIndex = 20
+        }, screenGui)
+        round(mobileBtn, 24)
+        stroke(mobileBtn, COLORS.Black, 2)
+
+        create("Frame", {
+            Name = "LeftHalf",
+            Size = UDim2.new(0.5, 0, 1, 0),
+            Position = UDim2.fromScale(0, 0),
+            BackgroundColor3 = COLORS.Lime,
+            BorderSizePixel = 0,
+            ZIndex = 21
+        }, mobileBtn)
+
+        create("Frame", {
+            Name = "RightHalf",
+            Size = UDim2.new(0.5, 0, 1, 0),
+            Position = UDim2.fromScale(0.5, 0),
+            BackgroundColor3 = COLORS.White,
+            BorderSizePixel = 0,
+            ZIndex = 21
+        }, mobileBtn)
+
+        create("TextLabel", {
+            Name = "Letter",
+            Size = UDim2.fromScale(1, 1),
+            BackgroundTransparency = 1,
+            Text = "L",
+            TextColor3 = COLORS.Black,
+            Font = Enum.Font.GothamBlack,
+            TextSize = 22,
+            ZIndex = 22
+        }, mobileBtn)
+
+        local mDragging = false
+        local mMoved = false
+        local mDragStart
+        local mStartPos
+
+        mobileBtn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+                mDragging = true
+                mMoved = false
+                mDragStart = input.Position
+                mStartPos = mobileBtn.Position
+            end
+        end)
+
+        UserInputService.InputChanged:Connect(function(input)
+            if mDragging and (input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseMovement) then
+                local delta = input.Position - mDragStart
+                if delta.Magnitude > 6 then
+                    mMoved = true
+                end
+                mobileBtn.Position = UDim2.new(
+                    mStartPos.X.Scale,
+                    mStartPos.X.Offset + delta.X,
+                    mStartPos.Y.Scale,
+                    mStartPos.Y.Offset + delta.Y
+                )
+            end
+        end)
+
+        UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if mDragging and not mMoved then
+                    toggleMenu()
+                end
+                mDragging = false
+            end
+        end)
+    end
+
+    local loaderFrame = create("Frame", {
+        Name = "LoaderFrame",
+        Size = UDim2.fromOffset(180, 180),
+        Position = UDim2.fromScale(0.5, 0.5),
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = COLORS.Background,
+        BorderSizePixel = 0,
+        ZIndex = 50
+    }, screenGui)
+    round(loaderFrame, 12)
+    stroke(loaderFrame, COLORS.Black, 2)
+
+    create("UIScale", {
+        Scale = baseScale
+    }, loaderFrame)
+
+    create("TextLabel", {
+        Name = "TitleLime",
+        Size = UDim2.fromOffset(75, 28),
+        Position = UDim2.fromOffset(30, 18),
+        BackgroundTransparency = 1,
+        Text = "Liiightt",
+        TextColor3 = COLORS.Lime,
+        Font = Enum.Font.GothamBlack,
+        TextSize = 20,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 51
+    }, loaderFrame)
+
+    create("TextLabel", {
+        Name = "TitleHub",
+        Size = UDim2.fromOffset(50, 28),
+        Position = UDim2.fromOffset(105, 18),
+        BackgroundTransparency = 1,
+        Text = "Hub",
+        TextColor3 = COLORS.White,
+        Font = Enum.Font.GothamBlack,
+        TextSize = 20,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 51
+    }, loaderFrame)
+
+    local spinner = create("Frame", {
+        Name = "Spinner",
+        Size = UDim2.fromOffset(36, 36),
+        Position = UDim2.fromOffset(72, 64),
+        BackgroundTransparency = 1,
+        ZIndex = 51
+    }, loaderFrame)
+
+    local dotCount = 8
+    local dots = {}
+    for i = 1, dotCount do
+        local angle = math.rad((i - 1) * (360 / dotCount))
+        local radius = 13
+        local dot = create("Frame", {
+            Name = "Dot" .. i,
+            Size = UDim2.fromOffset(5, 5),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            Position = UDim2.fromOffset(18 + math.cos(angle) * radius, 18 + math.sin(angle) * radius),
+            BackgroundColor3 = COLORS.Lime,
+            BackgroundTransparency = (i - 1) / dotCount,
+            BorderSizePixel = 0,
+            ZIndex = 52
+        }, spinner)
+        round(dot, 3)
+        dots[i] = dot
+    end
+
+    local barBg = create("Frame", {
+        Name = "BarBg",
+        Size = UDim2.fromOffset(140, 6),
+        Position = UDim2.fromOffset(20, 124),
+        BackgroundColor3 = COLORS.Surface,
+        BorderSizePixel = 0,
+        ClipsDescendants = true,
+        ZIndex = 51
+    }, loaderFrame)
+    round(barBg, 3)
+    stroke(barBg, COLORS.Black, 1.5)
+
+    local barFill = create("Frame", {
+        Name = "BarFill",
+        Size = UDim2.fromOffset(0, 6),
+        BackgroundColor3 = COLORS.Lime,
+        BorderSizePixel = 0,
+        ZIndex = 52
+    }, barBg)
+    round(barFill, 3)
+
+    create("TextLabel", {
+        Name = "Status",
+        Size = UDim2.fromOffset(140, 20),
+        Position = UDim2.fromOffset(20, 138),
+        BackgroundTransparency = 1,
+        Text = "loading...",
+        TextColor3 = COLORS.Gray,
+        Font = Enum.Font.SourceSans,
+        TextSize = 15,
+        ZIndex = 51
+    }, loaderFrame)
+
+    task.spawn(function()
+        local active = true
+        task.spawn(function()
+            local step = 0
+            while active and loaderFrame.Parent do
+                step = (step % dotCount) + 1
+                for i = 1, dotCount do
+                    local dist = (step - i) % dotCount
+                    dots[i].BackgroundTransparency = dist / dotCount
+                end
+                task.wait(0.08)
+            end
+        end)
+
+        local fillTween = TweenService:Create(
+            barFill,
+            TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {Size = UDim2.fromOffset(140, 6)}
+        )
+        fillTween:Play()
+        fillTween.Completed:Wait()
+
+        active = false
+        local closeTween = TweenService:Create(
+            loaderFrame,
+            TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In),
+            {Size = UDim2.fromOffset(180, 0)}
+        )
+        closeTween:Play()
+        closeTween.Completed:Wait()
+        loaderFrame:Destroy()
+
+        toggleMenu(true)
+    end)
+
     return {
         ScreenGui = screenGui,
         MainFrame = mainFrame,
@@ -405,6 +701,7 @@ function UI.Create()
         UIScale = uiScale,
         Colors = COLORS,
         CreateSection = createSection,
+        ToggleMenu = toggleMenu,
         Sections = {
             Movement = movementSection,
             Visual = visualSection,
@@ -413,4 +710,4 @@ function UI.Create()
     }
 end
 
-UI.Create()
+return UI
